@@ -1,0 +1,14 @@
+[package]
+name = "ios"
+version = "0.1.0"
+authors = ["rsaccon"]
+edition = "2018"
+
+[lib]
+name = "makepad"
+crate-type = ["staticlib"]
+
+[dependencies]
+
+# [dependencies.render]
+# path="../render"
