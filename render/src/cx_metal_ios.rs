@@ -2,8 +2,8 @@ use std::mem;
 
 //use cocoa::base::{id};
 use crate::cx::*;
-use crate::cx_cocoa::*;
-use cocoa::appkit::NSView;
+use crate::cx_cocoa_ios::*;
+// use cocoa::appkit::NSView;
 use cocoa::foundation::{NSAutoreleasePool, NSRange, NSUInteger};
 use core_graphics::color::CGColor;
 use core_graphics::geometry::CGSize;
@@ -281,7 +281,7 @@ pub struct MetalCx {
 
 impl MetalCx {
     pub fn new() -> MetalCx {
-        let device = Device::system_default();
+        let device = Device::system_default().expect("no device found");
         MetalCx {
             command_queue: device.new_command_queue(),
             device: device,
@@ -454,10 +454,10 @@ impl MetalWindow {
 
         unsafe {
             let view = cocoa_window.view;
-            view.setWantsBestResolutionOpenGLSurface_(YES);
-            view.setWantsLayer(YES);
+            // view.setWantsBestResolutionOpenGLSurface_(YES);  //  rsaccon
+            // view.setWantsLayer(YES);  // rsaccon
             msg_send![view, setLayerContentsPlacement: 11];
-            view.setLayer(mem::transmute(core_animation_layer.as_ref()));
+            // view.setLayer(mem::transmute(core_animation_layer.as_ref()));
         }
 
         MetalWindow {
@@ -608,22 +608,22 @@ impl MetalBuffer {
     }
 }
 
-use closefds::*;
-use std::os::unix::process::CommandExt;
-use std::process::{Child, Command, Stdio};
+// use closefds::*;
+// use std::os::unix::process::CommandExt;
+// use std::process::{Child, Command, Stdio};
 
-pub fn spawn_process_command(
-    cmd: &str,
-    args: &[&str],
-    current_dir: &str,
-) -> Result<Child, std::io::Error> {
-    unsafe {
-        Command::new(cmd)
-            .args(args)
-            .pre_exec(close_fds_on_exec(vec![0, 1, 2]).unwrap())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .current_dir(current_dir)
-            .spawn()
-    }
-}
+// pub fn spawn_process_command(
+//     cmd: &str,
+//     args: &[&str],
+//     current_dir: &str,
+// ) -> Result<Child, std::io::Error> {
+//     unsafe {
+//         Command::new(cmd)
+//             .args(args)
+//             .pre_exec(close_fds_on_exec(vec![0, 1, 2]).unwrap())
+//             .stdout(Stdio::piped())
+//             .stderr(Stdio::piped())
+//             .current_dir(current_dir)
+//             .spawn()
+//     }
+// }

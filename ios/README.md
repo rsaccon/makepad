@@ -15,3 +15,7 @@
 - Adapt `project.yml`
 - Run XcodeGen: `xcodegen`
 - Open project in Xcode and build the app
+
+### Helpful Articles
+
+- <http://iauns.com/gpu/Metal_GPU_Programming_01_-_Clear_Screen.html>

@@ -8,16 +8,20 @@ edition = "2018"
 shader_ast = {path="./shader_ast"}
 serde = { version = "1.0", features = ["derive"] }
 
-[target.x86_64-apple-darwin.dependencies]
+[target.'cfg(target_os = "macos")'.dependencies] 
 closefds = "*"
-time = "0.1.4"
-libc = "0.2"
-metal = "0.14"
-cocoa = "0.18"
+
+[target.'cfg(target_os = "ios")'.dependencies] 
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+cocoa = "0.19"
 core-graphics = "*"
+libc = "0.2"
+metal = "0.16"
+objc = "0.2.3"
 objc-foundation = "0.1"
 objc_id = "0.1"
-objc = "0.2.3"
+time = "0.1.4"
 
 [target.x86_64-unknown-linux-gnu.dependencies]
 x11-dl = "*"

@@ -17,7 +17,14 @@ targets:
           isEnabled: true
     settings:
       base:
-          OTHER_LDFLAGS: ["$(inherited)", "-lmakepad", "-framework Security", "-framework Foundation"] 
+          OTHER_LDFLAGS:
+            - $(inherited)
+            - -lmakepad
+            - -framework Security
+            - -framework Foundation
+            - -framework UIKit
+            - -framework CoreGraphics
+            - -framework Metal
           ENABLE_BITCODE: NO
           CLANG_CXX_LANGUAGE_STANDARD: c++14
           CLANG_CXX_LIBRARY: libc++
