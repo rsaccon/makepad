@@ -63,7 +63,7 @@ pub struct CocoaApp {
     pub timers: Vec<CocoaTimer>,
     pub cocoa_windows: Vec<(id, id)>,
     pub last_key_mod: KeyModifiers,
-    // pub pasteboard: id,  // ios-ify
+    pub pasteboard: id, // ios-ify
     pub event_callback: Option<*mut dyn FnMut(&mut CocoaApp, &mut Vec<Event>) -> bool>,
     pub event_recur_block: bool,
     pub event_loop_running: bool,
@@ -87,7 +87,7 @@ impl CocoaApp {
                     ],
                 ),
                 const_empty_string: NSString::alloc(nil).init_str(""),
-                // pasteboard: msg_send![class!(NSPasteboard), generalPasteboard],
+                pasteboard: msg_send![class!(UIPasteboard), generalPasteboard],
                 time_start: precise_time_ns(),
                 timer_delegate_instance: timer_delegate_instance,
                 timer_delegate_class: timer_delegate_class,
