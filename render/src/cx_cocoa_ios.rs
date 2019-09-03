@@ -13,10 +13,25 @@ use cocoa::foundation::*;
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Protocol, Sel, BOOL, NO, YES};
 use objc::*;
-use std::os::raw::c_void;
+use std::os::raw::{c_char, c_int, c_void};
+use std::ptr;
 // use core_graphics::display::CGDisplay;
 use time::precise_time_ns;
 static mut GLOBAL_COCOA_APP: *mut CocoaApp = 0 as *mut _;
+
+#[link(name = "UIKit", kind = "framework")]
+#[link(name = "CoreFoundation", kind = "framework")]
+extern "C" {
+    // pub static kCFRunLoopDefaultMode: CFRunLoopMode;
+    // pub static kCFRunLoopCommonModes: CFRunLoopMode;
+
+    pub fn UIApplicationMain(
+        argc: c_int,
+        argv: *const c_char,
+        principalClassName: id,
+        delegateClassName: id,
+    ) -> c_int;
+}
 
 #[link(name = "Foundation", kind = "framework")]
 extern "C" {
@@ -119,27 +134,57 @@ impl CocoaApp {
             //     panic!("App is nil");
             // }
 
-            // /*let menu: id = msg_send![class!(NSMenu), init: NSString::alloc(nil).init_str("MainMenu")];
-            // let makepad_menu: id = msg_send![class!(NSMenu), init: NSString::alloc(nil).init_str("Apple")];
-            // let makepad_item: id = msg_send![class!(NSMenuItem), title: NSString::alloc(nil).init_str("MakePad")];
-            // let makepad_quit: id = msg_send![
-            //     class!(NSMenuItem),
-            //     title: NSString::alloc(nil).init_str("MakePad")
-            //     action: NSString::alloc(nil).init_str("terminate:")
-            //     keyEquivalent: NSString::alloc(nil).init_str("q")
-            // ];
-
-            // // add our menu
-            // msg_send![
-            //     ns_app,
-            //     setMainMenu: menu
-            // ];
-            // */
             // ns_app.setActivationPolicy_(appkit::NSApplicationActivationPolicy::NSApplicationActivationPolicyRegular);
             // ns_app.finishLaunching();
             // let current_app = appkit::NSRunningApplication::currentApplication(nil);
             // current_app.activateWithOptions_(appkit::NSApplicationActivateIgnoringOtherApps);
             // (*self.timer_delegate_instance).set_ivar("cocoa_app_ptr", self as *mut _ as *mut c_void);
+
+            ////
+            // unsafe {
+            //     let application: *mut c_void = msg_send![class!(UIApplication), sharedApplication];
+            //     assert_eq!(
+            //         application,
+            //         ptr::null_mut(),
+            //         "\
+            //          `EventLoop` cannot be `run` after a call to `UIApplicationMain` on iOS\n\
+            //          Note: `EventLoop::run` calls `UIApplicationMain` on iOS"
+            //     );
+            //     AppState::will_launch(Box::new(EventLoopHandler {
+            //         f: event_handler,
+            //         event_loop: self.window_target,
+            //     }));
+
+            //     UIApplicationMain(
+            //         0,
+            //         ptr::null(),
+            //         nil,
+            //         NSString::alloc(nil).init_str("AppDelegate"),
+            //     );
+            //     unreachable!()
+            // }
+            ////
+
+            unsafe {
+                // let application: *mut c_void = msg_send![class!(UIApplication), sharedApplication];
+                // assert_eq!(
+                //     application,
+                //     ptr::null_mut(),
+                //     "\
+                //      `EventLoop` cannot be `run` after a call to `UIApplicationMain` on iOS\n\
+                //      Note: `EventLoop::run` calls `UIApplicationMain` on iOS"
+                // );
+
+                let ns_app = UIApplicationMain(
+                    0,
+                    ptr::null(),
+                    nil,
+                    NSString::alloc(nil).init_str("AppDelegate"),
+                );
+                if ns_app == nil {
+                    panic!("App is nil");
+                }
+            }
         }
     }
 
