@@ -175,15 +175,13 @@ impl CocoaApp {
                 //      Note: `EventLoop::run` calls `UIApplicationMain` on iOS"
                 // );
 
-                let ns_app = UIApplicationMain(
+                UIApplicationMain(
                     0,
                     ptr::null(),
                     nil,
                     NSString::alloc(nil).init_str("AppDelegate"),
                 );
-                if ns_app == nil {
-                    panic!("App is nil");
-                }
+                unreachable!()
             }
         }
     }
