@@ -30,10 +30,7 @@ pub use crate::cx_hlsl::*;
 pub use crate::cx_ios::*;
 #[cfg(target_os = "macos")]
 pub use crate::cx_macos::*;
-#[cfg(target_os = "macos")]
 pub use crate::cx_metal::*;
-#[cfg(target_os = "ios")]
-pub use crate::cx_metal_ios::*;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub use crate::cx_metalsl::*;
 #[cfg(any(target_os = "windows"))]
@@ -866,6 +863,44 @@ macro_rules! main_app {
                 }
                 app.handle_app(cx, &mut event);
             });
+        }
+
+        /// This is called by the true `main` function of our application.
+        #[cfg(target_os = "ios")]
+        #[no_mangle]
+        pub extern "C" fn main_rs() -> std::os::raw::c_int {
+            stop_unwind(start_makepad_app)
+        }
+
+        #[cfg(target_os = "ios")]
+        use std::{
+            panic::{self, UnwindSafe},
+            process,
+        };
+
+        /// Panicking out of rust into another language is Undefined Behavior!
+        ///
+        /// Catching a panic at the FFI boundary is one of the few generally agreed
+        /// upon use cases for `catch_unwind`.
+        /// https://doc.rust-lang.org/nomicon/unwinding.html
+        #[cfg(target_os = "ios")]
+        fn stop_unwind<F: FnOnce() -> T + UnwindSafe, T>(f: F) -> T {
+            match panic::catch_unwind(f) {
+                Ok(t) => t,
+                Err(_) => {
+                    eprintln!("Attempt to Unwind out of rust code");
+
+                    // We should handle the error somehow, and, without knowing what the
+                    // error is, aborting is an OK choice.
+                    process::abort()
+                }
+            }
+        }
+
+        #[cfg(target_os = "ios")]
+        fn start_makepad_app() -> std::os::raw::c_int {
+            main();
+            0
         }
 
         #[export_name = "create_wasm_app"]

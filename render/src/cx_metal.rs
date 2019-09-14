@@ -2,8 +2,11 @@ use std::mem;
 
 //use cocoa::base::{id};
 use crate::cx::*;
+#[cfg(target_os = "macos")]
 use crate::cx_cocoa::*;
-use cocoa::appkit::NSView;
+#[cfg(target_os = "ios")]
+use crate::cx_cocoa_ios::*;
+//use cocoa::appkit::NSView;
 use cocoa::foundation::{NSAutoreleasePool, NSRange, NSUInteger};
 use core_graphics::color::CGColor;
 use core_graphics::geometry::CGSize;
@@ -281,7 +284,7 @@ pub struct MetalCx {
 
 impl MetalCx {
     pub fn new() -> MetalCx {
-        let device = Device::system_default();
+        let device = Device::system_default().expect("no device found");
         MetalCx {
             command_queue: device.new_command_queue(),
             device: device,
@@ -454,9 +457,12 @@ impl MetalWindow {
 
         unsafe {
             let view = cocoa_window.view;
+            #[cfg(target_os = "macos")] // TODO: adapt for iOS if possible
             view.setWantsBestResolutionOpenGLSurface_(YES);
+            #[cfg(target_os = "macos")] // TODO: adapt for iOS if possible
             view.setWantsLayer(YES);
             msg_send![view, setLayerContentsPlacement: 11];
+            #[cfg(target_os = "macos")] // TODO: adapt for iOS if possible
             view.setLayer(mem::transmute(core_animation_layer.as_ref()));
         }
 
@@ -608,10 +614,14 @@ impl MetalBuffer {
     }
 }
 
+#[cfg(target_os = "macos")]
 use closefds::*;
+#[cfg(target_os = "macos")]
 use std::os::unix::process::CommandExt;
+#[cfg(target_os = "macos")]
 use std::process::{Child, Command, Stdio};
 
+#[cfg(target_os = "macos")]
 pub fn spawn_process_command(
     cmd: &str,
     args: &[&str],

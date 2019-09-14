@@ -27,6 +27,17 @@ impl Cx {
 
         let mut passes_todo = Vec::new();
 
+        //
+        //
+        // where goes setup of wininit control flow ???
+        //
+        //     app_state::will_launch(Box::new(EventLoopHandler {
+        //         f: event_handler,
+        //         event_loop: self.window_target,
+        //     }));
+        //
+        //
+
         cocoa_app.event_loop(|cocoa_app, events| {
             //let mut paint_dirty = false;
             for mut event in events {
@@ -256,6 +267,7 @@ impl Cx {
                 false
             }
         });
+        cocoa_app.ui_appplication_main();
     }
 
     pub fn show_text_ime(&mut self, x: f32, y: f32) {

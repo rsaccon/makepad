@@ -133,56 +133,14 @@ impl CocoaApp {
             // if ns_app == nil {
             //     panic!("App is nil");
             // }
+            let ui_app: *mut c_void = msg_send![class!(UIApplication), sharedApplication];
+            assert_eq!(ui_app, ptr::null_mut(), "App is null");
 
             // ns_app.setActivationPolicy_(appkit::NSApplicationActivationPolicy::NSApplicationActivationPolicyRegular);
             // ns_app.finishLaunching();
             // let current_app = appkit::NSRunningApplication::currentApplication(nil);
             // current_app.activateWithOptions_(appkit::NSApplicationActivateIgnoringOtherApps);
             // (*self.timer_delegate_instance).set_ivar("cocoa_app_ptr", self as *mut _ as *mut c_void);
-
-            ////
-            // unsafe {
-            //     let application: *mut c_void = msg_send![class!(UIApplication), sharedApplication];
-            //     assert_eq!(
-            //         application,
-            //         ptr::null_mut(),
-            //         "\
-            //          `EventLoop` cannot be `run` after a call to `UIApplicationMain` on iOS\n\
-            //          Note: `EventLoop::run` calls `UIApplicationMain` on iOS"
-            //     );
-            //     AppState::will_launch(Box::new(EventLoopHandler {
-            //         f: event_handler,
-            //         event_loop: self.window_target,
-            //     }));
-
-            //     UIApplicationMain(
-            //         0,
-            //         ptr::null(),
-            //         nil,
-            //         NSString::alloc(nil).init_str("AppDelegate"),
-            //     );
-            //     unreachable!()
-            // }
-            ////
-
-            unsafe {
-                // let application: *mut c_void = msg_send![class!(UIApplication), sharedApplication];
-                // assert_eq!(
-                //     application,
-                //     ptr::null_mut(),
-                //     "\
-                //      `EventLoop` cannot be `run` after a call to `UIApplicationMain` on iOS\n\
-                //      Note: `EventLoop::run` calls `UIApplicationMain` on iOS"
-                // );
-
-                UIApplicationMain(
-                    0,
-                    ptr::null(),
-                    nil,
-                    NSString::alloc(nil).init_str("AppDelegate"),
-                );
-                unreachable!()
-            }
         }
     }
 
@@ -411,35 +369,54 @@ impl CocoaApp {
                 &mut event_handler as *const dyn FnMut(&mut CocoaApp, &mut Vec<Event>) -> bool
                     as *mut dyn FnMut(&mut CocoaApp, &mut Vec<Event>) -> bool,
             );
+        }
 
-            while self.event_loop_running {
-                // let pool = foundation::NSAutoreleasePool::new(cocoa::base::nil);
+        // unsafe {
+        //     self.event_callback = Some(
+        //         &mut event_handler as *const dyn FnMut(&mut CocoaApp, &mut Vec<Event>) -> bool
+        //             as *mut dyn FnMut(&mut CocoaApp, &mut Vec<Event>) -> bool,
+        //     );
+        //
+        //     while self.event_loop_running {
+        // let pool = foundation::NSAutoreleasePool::new(cocoa::base::nil);
+        //
+        // in here the event loop state is handled
+        // begin-rs//
+        // let ns_event = appkit::NSApp().nextEventMatchingMask_untilDate_inMode_dequeue_(
+        //     NSEventMask::NSAnyEventMask.bits() | NSEventMask::NSEventMaskPressure.bits(),
+        //     if self.loop_block {
+        //         foundation::NSDate::distantFuture(cocoa::base::nil)
+        //     }else {
+        //         foundation::NSDate::distantPast(cocoa::base::nil)
+        //     },
+        //     foundation::NSDefaultRunLoopMode,
+        //     cocoa::base::YES
+        // );
+        //
+        // if ns_event != nil {
+        //     self.process_ns_event(ns_event);
+        // }
+        //
+        // if ns_event == nil || self.loop_block {
+        //     self.do_callback(&mut vec![Event::Paint]);
+        // }
+        // end-rs//
+        //
+        // let _: () = msg_send![pool, release];
+        //     }
+        //     self.event_callback = None;
+        // }
+    }
 
-                // in here the event loop state is handled
-                // begin-rs//
-                // let ns_event = appkit::NSApp().nextEventMatchingMask_untilDate_inMode_dequeue_(
-                //     NSEventMask::NSAnyEventMask.bits() | NSEventMask::NSEventMaskPressure.bits(),
-                //     if self.loop_block {
-                //         foundation::NSDate::distantFuture(cocoa::base::nil)
-                //     }else {
-                //         foundation::NSDate::distantPast(cocoa::base::nil)
-                //     },
-                //     foundation::NSDefaultRunLoopMode,
-                //     cocoa::base::YES
-                // );
-
-                // if ns_event != nil {
-                //     self.process_ns_event(ns_event);
-                // }
-
-                // if ns_event == nil || self.loop_block {
-                //     self.do_callback(&mut vec![Event::Paint]);
-                // }
-                // end-rs//
-
-                // let _: () = msg_send![pool, release];
-            }
-            self.event_callback = None;
+    pub fn ui_appplication_main(&mut self) {
+        unsafe {
+            UIApplicationMain(
+                0,
+                ptr::null(),
+                nil,
+                NSString::alloc(nil).init_str("AppDelegate"),
+            );
+            unreachable!()
         }
     }
 

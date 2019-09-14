@@ -19,10 +19,7 @@ mod cx_hlsl;
 mod cx_ios;
 #[cfg(any(target_os = "macos"))]
 mod cx_macos;
-#[cfg(target_os = "macos")]
 mod cx_metal;
-#[cfg(target_os = "ios")]
-mod cx_metal_ios;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 mod cx_metalsl;
 #[cfg(any(target_os = "windows"))]

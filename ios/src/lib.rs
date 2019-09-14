@@ -1,33 +1,4 @@
 use render::*;
-use std::{
-    panic::{self, UnwindSafe},
-    process,
-};
-
-/// This is called by the true `main` function of our application.
-#[no_mangle]
-pub extern "C" fn main_rs() -> std::os::raw::c_int {
-    // See `safe_unwind` below.
-    stop_unwind(start_makepad_app)
-}
-
-/// Panicking out of rust into another language is Undefined Behavior!
-///
-/// Catching a panic at the FFI boundary is one of the few generally agreed
-/// upon use cases for `catch_unwind`.
-/// https://doc.rust-lang.org/nomicon/unwinding.html
-fn stop_unwind<F: FnOnce() -> T + UnwindSafe, T>(f: F) -> T {
-    match panic::catch_unwind(f) {
-        Ok(t) => t,
-        Err(_) => {
-            eprintln!("Attempt to Unwind out of rust code");
-
-            // We should handle the error somehow, and, without knowing what the
-            // error is, aborting is an OK choice.
-            process::abort()
-        }
-    }
-}
 
 struct App {
     window: Window,
@@ -38,31 +9,6 @@ struct App {
 }
 
 main_app!(App);
-
-// TODO: adapt the main_app! macro for this
-/// This is the main function of our application in spirit.
-fn start_makepad_app() -> std::os::raw::c_int {
-    println!("Hello iOS!!!");
-
-    main(); // TODO: call here the app makepad main
-
-    // let mut cx = Cx {
-    //     ..Default::default()
-    // };
-
-    // let mut app = App {
-    //     ..Style::style(&mut cx)
-    // };
-
-    // cx.event_loop(|cx, mut event| {
-    //     if let Event::Draw = event {
-    //         return app.draw_app(cx);
-    //     }
-    //     app.handle_app(cx, &mut event);
-    // });
-
-    0
-}
 
 impl Style for App {
     fn style(cx: &mut Cx) -> Self {
