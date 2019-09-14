@@ -579,6 +579,7 @@ impl MetalBuffer {
             unsafe {
                 std::ptr::copy(data.as_ptr(), p as *mut f32, data.len());
             }
+            #[cfg(target_os = "macos")] // TODO: adapt for iOS if possible
             buffer.did_modify_range(NSRange::new(
                 0 as u64,
                 (data.len() * std::mem::size_of::<f32>()) as u64,
@@ -605,6 +606,7 @@ impl MetalBuffer {
             unsafe {
                 std::ptr::copy(data.as_ptr(), p as *mut u32, data.len());
             }
+            #[cfg(target_os = "macos")] // TODO: adapt for iOS if possible
             buffer.did_modify_range(NSRange::new(
                 0 as u64,
                 (data.len() * std::mem::size_of::<u32>()) as u64,
